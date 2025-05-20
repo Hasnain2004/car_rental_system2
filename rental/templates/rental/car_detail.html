@@ -1,0 +1,220 @@
+{% extends 'rental/base.html' %} {% load static %}
+<!-- title -->
+{% block title %}
+<!-- a -->
+{{ car.year }} {{ car.make }} {{ car.model }} - LuxDrive Rentals{% endblock %}
+{% block extra_css %}
+<style>
+  .car-image {
+    border-radius: 10px;
+    max-height: 400px;
+    object-fit: cover;
+    width: 100%;
+  }
+  .car-detail-card {
+    border-radius: 10px;
+    overflow: hidden;
+  }
+  .car-features {
+    margin-top: 30px;
+  }
+  .feature-item {
+    padding: 10px 0;
+    border-bottom: 1px solid #eee;
+  }
+  .feature-icon {
+    margin-right: 10px;
+    color: #007bff;
+  }
+  .booking-form {
+    padding: 20px;
+    background-color: #f8f9fa;
+    border-radius: 10px;
+  }
+</style>
+{% endblock %} {% block content %}
+<div class="container my-5">
+  <div class="row">
+    <!-- Car Image and Details -->
+    <div class="col-lg-8">
+      <div class="card car-detail-card shadow-sm mb-4">
+        {% if car.image %}
+        <img src="{{ car.image.url }}" class="car-image" alt="{{ car }}" />
+        {% else %}
+        <img
+          src="{% static 'images/car-placeholder.jpg' %}"
+          class="car-image"
+          alt="{{ car }}"
+        />
+        {% endif %}
+        <div class="card-body">
+          <h1 class="card-title mb-3">
+            {{ car.year }} {{ car.make }} {{ car.model }}
+          </h1>
+          <div class="d-flex justify-content-between align-items-center mb-3">
+            <span class="badge bg-info text-capitalize fs-6"
+              >{{ car.category }}</span
+            >
+            <span class="h4 mb-0 text-primary"
+              >${{ car.price_per_day }} / day</span
+            >
+          </div>
+          <p class="card-text">
+            Experience the thrill of driving this {{ car.year }} {{ car.make }}
+            {{ car.model }}. This {{ car.category }} vehicle offers a perfect
+            blend of performance, comfort, and style.
+          </p>
+
+          <!-- Car Features -->
+          <div class="car-features">
+            <h4>Features</h4>
+            <div class="row">
+              <div class="col-md-6">
+                <div class="feature-item">
+                  <i class="fas fa-calendar feature-icon"></i>
+                  <!-- a -->
+                  Year: {{ car.year }}
+                </div>
+                <div class="feature-item">
+                  <i class="fas fa-tag feature-icon"></i>
+                  <!-- a -->
+                  Make: {{ car.make }}
+                </div>
+                <div class="feature-item">
+                  <i class="fas fa-car-side feature-icon"></i>
+                  <!-- a -->
+                  Model: {{ car.model }}
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="feature-item">
+                  <i class="fas fa-dollar-sign feature-icon"></i>
+                  <!-- a -->
+                  Daily Rate: ${{ car.price_per_day }}
+                </div>
+                <div class="feature-item">
+                  <i class="fas fa-list-alt feature-icon"></i>
+                  <!-- a -->
+                  Category: {{ car.category|title }}
+                </div>
+                <div class="feature-item">
+                  <i class="fas fa-check-circle feature-icon text-success"></i>
+                  Status: Available
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Booking Form -->
+    <div class="col-lg-4">
+      <div class="booking-form shadow-sm">
+        <h3 class="mb-4">Book This Car</h3>
+
+        {% if user.is_authenticated %}
+        <form method="post" action="{% url 'rental:book_car' car_id=car.id %}">
+          {% csrf_token %}
+          <div class="mb-3">
+            <label for="booking_date" class="form-label">Pickup Date</label>
+            <input
+              type="date"
+              class="form-control"
+              id="booking_date"
+              name="booking_date"
+              min="{{ min_date|date:'Y-m-d' }}"
+              required
+            />
+          </div>
+          <div class="mb-3">
+            <label for="return_date" class="form-label">Return Date</label>
+            <input
+              type="date"
+              class="form-control"
+              id="return_date"
+              name="return_date"
+              min="{{ min_return_date|date:'Y-m-d' }}"
+              required
+            />
+          </div>
+          <div class="mb-3">
+            <div class="alert alert-info">
+              <i class="fas fa-info-circle"></i> Total will be calculated based
+              on the number of days.
+            </div>
+          </div>
+          <button type="submit" class="btn btn-primary w-100">Book Now</button>
+        </form>
+        {% else %}
+        <div class="alert alert-warning">
+          <i class="fas fa-exclamation-triangle"></i> You need to be logged in
+          to book a car.
+        </div>
+        <a
+          href="{% url 'rental:login' %}?next={% url 'rental:car_detail' car_id=car.id %}"
+          class="btn btn-primary w-100"
+          >Login to Book</a
+        >
+        <div class="text-center mt-3">
+          <span>Don't have an account? </span>
+          <a href="{% url 'rental:register' %}">Register here</a>
+        </div>
+        {% endif %}
+      </div>
+
+      <!-- Related Cars -->
+      <div class="mt-4">
+        <h4>You may also like</h4>
+        <div class="list-group">
+          {% for related_car in car.category %}
+          <!-- a -->
+          {% if related_car.id != car.id and related_car.available %}
+          <a
+            href="{% url 'rental:car_detail' car_id=related_car.id %}"
+            class="list-group-item list-group-item-action"
+          >
+            {{ related_car.year }}
+            <!-- a -->
+            {{ related_car.make }} {{ related_car.model }}
+          </a>
+          {% endif %} {% endfor %}
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="my-4">
+    <a href="{% url 'rental:car_list' %}" class="btn btn-outline-primary">
+      <i class="fas fa-arrow-left me-2"></i> Back to Cars
+    </a>
+  </div>
+</div>
+{% endblock %} {% block extra_js %}
+<script>
+  // Calculate total price based on dates
+  document.addEventListener("DOMContentLoaded", function () {
+    const bookingDateInput = document.getElementById("booking_date");
+    const returnDateInput = document.getElementById("return_date");
+
+    if (bookingDateInput && returnDateInput) {
+      const updateReturnMinDate = function () {
+        const bookingDate = new Date(bookingDateInput.value);
+        bookingDate.setDate(bookingDate.getDate() + 1);
+        const minReturnDate = bookingDate.toISOString().split("T")[0];
+        returnDateInput.min = minReturnDate;
+
+        // If current return date is before new minimum, update it
+        if (
+          returnDateInput.value &&
+          new Date(returnDateInput.value) < bookingDate
+        ) {
+          returnDateInput.value = minReturnDate;
+        }
+      };
+
+      bookingDateInput.addEventListener("change", updateReturnMinDate);
+    }
+  });
+</script>
+{% endblock %}

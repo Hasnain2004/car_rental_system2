@@ -1,0 +1,184 @@
+{% extends 'rental/base.html' %} {% load static %} {% block title %}LuxDrive
+Rentals - Premium Car Rental{% endblock %} {% block extra_css %}
+<style>
+  .hero-section {
+    background: linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.6)),
+      url('{% static "images/hero-bg.jpg" %}');
+    background-size: cover;
+    background-position: center;
+    color: white;
+    padding: 100px 0;
+    margin-bottom: 40px;
+  }
+  .category-card {
+    transition: transform 0.3s;
+    margin-bottom: 20px;
+  }
+  .category-card:hover {
+    transform: translateY(-5px);
+  }
+  .featured-car {
+    transition: transform 0.3s;
+  }
+  .featured-car:hover {
+    transform: translateY(-5px);
+  }
+  .features-section {
+    background-color: #f8f9fa;
+    padding: 60px 0;
+  }
+  .feature-box {
+    text-align: center;
+    padding: 20px;
+  }
+  .feature-icon {
+    font-size: 3rem;
+    margin-bottom: 15px;
+    color: #007bff;
+  }
+</style>
+{% endblock %} {% block content %}
+<!-- Hero Section -->
+<section class="hero-section">
+  <div class="container text-center">
+    <h1 class="display-3 mb-4">Drive Your Dream Car Today</h1>
+    <p class="lead mb-5">
+      Experience luxury, comfort, and style with our premium car rental services
+    </p>
+    <a href="{% url 'rental:car_list' %}" class="btn btn-primary btn-lg"
+      >View Our Cars</a
+    >
+  </div>
+</section>
+
+<!-- Categories Section -->
+<section class="container my-5">
+  <h2 class="text-center mb-5">Browse by Category</h2>
+  <div class="row">
+    {% for category in categories %}
+    <div class="col-md-4">
+      <div class="card category-card shadow-sm">
+        <div class="card-body text-center">
+          <i
+            class="fas {% if category == 'luxury' %}fa-crown {% elif category == 'offroad' %}fa-mountain {% elif category == 'sedan' %}fa-car {% elif category == 'suv' %}fa-truck {% elif category == 'sports' %}fa-tachometer-alt {% else %}fa-car-side{% endif %} fa-3x mb-3"
+            style="color: #007bff"
+          ></i>
+          <h4 class="card-title text-capitalize">{{ category }}</h4>
+          <p class="card-text">Explore our {{ category }} collection</p>
+          <a
+            href="{% url 'rental:car_filter' category=category %}"
+            class="btn btn-outline-primary"
+            >View Cars</a
+          >
+        </div>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+</section>
+
+<!-- Featured Cars Section -->
+<section class="container my-5">
+  <h2 class="text-center mb-5">Featured Vehicles</h2>
+  <div class="row">
+    {% for car in featured_cars %}
+    <div class="col-md-4 mb-4">
+      <div class="card featured-car h-100 shadow-sm">
+        {% if car.image %}
+        <img src="{{ car.image.url }}" class="card-img-top" alt="{{ car }}" />
+        {% else %}
+        <img
+          src="{% static 'images/car-placeholder.jpg' %}"
+          class="card-img-top"
+          alt="{{ car }}"
+        />
+        {% endif %}
+        <div class="card-body">
+          <h5 class="card-title">
+            {{ car.year }} {{ car.make }} {{ car.model }}
+          </h5>
+          <p class="card-text text-capitalize">
+            <span class="badge bg-info">{{ car.category }}</span>
+          </p>
+          <p class="card-text">
+            <strong>${{ car.price_per_day }}</strong> / day
+          </p>
+        </div>
+        <div class="card-footer bg-white border-top-0">
+          <a
+            href="{% url 'rental:car_detail' car_id=car.id %}"
+            class="btn btn-primary w-100"
+            >View Details</a
+          >
+        </div>
+      </div>
+    </div>
+    {% empty %}
+    <div class="col-12 text-center">
+      <p>No featured cars available at the moment.</p>
+    </div>
+    {% endfor %}
+  </div>
+  <div class="text-center mt-4">
+    <a href="{% url 'rental:car_list' %}" class="btn btn-outline-primary"
+      >View All Cars</a
+    >
+  </div>
+</section>
+
+<!-- Features Section -->
+<section class="features-section my-5">
+  <div class="container">
+    <h2 class="text-center mb-5">Why Choose Us</h2>
+    <div class="row">
+      <div class="col-md-4">
+        <div class="feature-box">
+          <i class="fas fa-car-side feature-icon"></i>
+          <h4>Wide Selection</h4>
+          <p>
+            Choose from our diverse fleet of vehicles, from luxury cars to SUVs
+            and sports cars.
+          </p>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="feature-box">
+          <i class="fas fa-money-bill-wave feature-icon"></i>
+          <h4>Best Rates</h4>
+          <p>
+            We offer competitive pricing and special discounts for long-term
+            rentals.
+          </p>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="feature-box">
+          <i class="fas fa-headset feature-icon"></i>
+          <h4>24/7 Support</h4>
+          <p>
+            Our customer service team is available round the clock to assist
+            you.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Call to Action Section -->
+<section class="container my-5 text-center">
+  <div class="p-5 bg-light rounded">
+    <h2>Ready to Book Your Dream Car?</h2>
+    <p class="lead">
+      Sign up today and get exclusive offers on your first rental!
+    </p>
+    <a href="{% url 'rental:register' %}" class="btn btn-primary btn-lg mt-3"
+      >Sign Up Now</a
+    >
+  </div>
+</section>
+{% endblock %} {% block extra_js %}
+<script>
+  // You can add any JavaScript specific to the home page here
+</script>
+{% endblock %}

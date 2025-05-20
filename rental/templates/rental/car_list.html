@@ -1,0 +1,118 @@
+{% extends 'rental/base.html' %} {% load static %} {% block title %}Cars -
+LuxDrive Rentals{% endblock %} {% block extra_css %}
+<style>
+  .car-card {
+    transition: transform 0.3s;
+    height: 100%;
+  }
+  .car-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+  }
+  .category-filter {
+    margin-bottom: 30px;
+    padding: 20px;
+    border-radius: 10px;
+    background-color: #f8f9fa;
+  }
+  .category-btn {
+    margin: 5px;
+  }
+  .page-header {
+    background: linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.6)),
+      url('{% static "images/cars-bg.jpg" %}');
+    background-size: cover;
+    background-position: center;
+    color: white;
+    padding: 60px 0;
+    margin-bottom: 40px;
+    text-align: center;
+  }
+</style>
+{% endblock %} {% block content %}
+<!-- Page Header -->
+<section class="page-header">
+  <div class="container">
+    <h1 class="display-4">Our Car Collection</h1>
+    {% if current_category %}
+    <p class="lead">Browse our {{ current_category }} cars</p>
+    {% else %}
+    <p class="lead">Find the perfect car for your needs</p>
+    {% endif %}
+  </div>
+</section>
+
+<div class="container">
+  <!-- Category Filter -->
+  <div class="category-filter shadow-sm">
+    <h4 class="mb-3">Filter by Category</h4>
+    <a
+      href="{% url 'rental:car_list' %}"
+      class="btn {% if not current_category %}btn-primary{% else %}btn-outline-primary{% endif %} category-btn"
+    >
+      All Cars
+    </a>
+    {% for category in categories %}
+    <a
+      href="{% url 'rental:car_filter' category=category %}"
+      class="btn {% if current_category == category %}btn-primary{% else %}btn-outline-primary{% endif %} category-btn text-capitalize"
+    >
+      {{ category }}
+    </a>
+    {% endfor %}
+  </div>
+
+  <!-- Car Listing -->
+  <div class="row">
+    {% for car in cars %}
+    <div class="col-md-4 mb-4">
+      <div class="card car-card shadow-sm">
+        {% if car.image %}
+        <img src="{{ car.image.url }}" class="card-img-top" alt="{{ car }}" />
+        {% else %}
+        <img
+          src="{% static 'images/car-placeholder.jpg' %}"
+          class="card-img-top"
+          alt="{{ car }}"
+        />
+        {% endif %}
+        <div class="card-body">
+          <h5 class="card-title">
+            {{ car.year }} {{ car.make }} {{ car.model }}
+          </h5>
+          <p class="card-text text-capitalize">
+            <span class="badge bg-info">{{ car.category }}</span>
+          </p>
+          <p class="card-text">
+            <strong>${{ car.price_per_day }}</strong> / day
+          </p>
+          <p class="card-text">
+            <i class="fas fa-check-circle text-success"></i> Available
+          </p>
+        </div>
+        <div class="card-footer bg-white border-top-0">
+          <a
+            href="{% url 'rental:car_detail' car_id=car.id %}"
+            class="btn btn-primary w-100"
+            >View Details</a
+          >
+        </div>
+      </div>
+    </div>
+    {% empty %}
+    <div class="col-12 text-center py-5">
+      <i class="fas fa-car-crash fa-4x mb-3 text-muted"></i>
+      <h3>No cars found</h3>
+      {% if current_category %}
+      <p>No {{ current_category }} cars are currently available.</p>
+      <a href="{% url 'rental:car_list' %}" class="btn btn-primary mt-3"
+        >View All Cars</a
+      >
+      {% else %}
+      <p>No cars are currently available in our inventory.</p>
+      {% endif %}
+    </div>
+    {% endfor %}
+  </div>
+</div>
+{% endblock %}

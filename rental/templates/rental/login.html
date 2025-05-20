@@ -1,0 +1,96 @@
+{% extends 'rental/base.html' %} {% load static %} {% block title %}Login -
+LuxDrive Rentals{% endblock %} {% block extra_css %}
+<style>
+  .login-container {
+    max-width: 500px;
+    margin: 40px auto;
+  }
+  .login-card {
+    border: none;
+    border-radius: 10px;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+  }
+  .login-header {
+    background: linear-gradient(to right, #007bff, #0056b3);
+    color: white;
+    padding: 30px;
+    text-align: center;
+  }
+  .login-body {
+    padding: 30px;
+  }
+  .login-icon {
+    font-size: 3rem;
+    margin-bottom: 15px;
+  }
+</style>
+{% endblock %} {% block content %}
+<div class="container">
+  <div class="login-container">
+    <div class="login-card">
+      <div class="login-header">
+        <i class="fas fa-user-circle login-icon"></i>
+        <h2>Login to Your Account</h2>
+        <p>Access your bookings and rent a car</p>
+      </div>
+
+      <div class="login-body">
+        <form method="post" action="{% url 'rental:login' %}">
+          {% csrf_token %} {% if form.errors %}
+          <div class="alert alert-danger">
+            <i class="fas fa-exclamation-circle me-2"></i>
+            Your username and password didn't match. Please try again.
+          </div>
+          {% endif %}
+
+          <div class="mb-3">
+            <label for="id_username" class="form-label">Username</label>
+            <div class="input-group">
+              <span class="input-group-text"><i class="fas fa-user"></i></span>
+              <input
+                type="text"
+                name="username"
+                id="id_username"
+                class="form-control"
+                placeholder="Enter your username"
+                required
+              />
+            </div>
+          </div>
+
+          <div class="mb-4">
+            <label for="id_password" class="form-label">Password</label>
+            <div class="input-group">
+              <span class="input-group-text"><i class="fas fa-lock"></i></span>
+              <input
+                type="password"
+                name="password"
+                id="id_password"
+                class="form-control"
+                placeholder="Enter your password"
+                required
+              />
+            </div>
+          </div>
+
+          {% if next %}
+          <input type="hidden" name="next" value="{{ next }}" />
+          {% endif %}
+
+          <div class="d-grid gap-2">
+            <button type="submit" class="btn btn-primary">Login</button>
+          </div>
+
+          <div class="text-center mt-4">
+            <p class="mb-0">
+              Don't have an account?
+              <a href="{% url 'rental:register' %}">Register here</a>
+            </p>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

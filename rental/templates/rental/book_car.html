@@ -1,0 +1,175 @@
+{% extends 'rental/base.html' %} {% load static %}
+<!-- title -->
+{% block title %}Book {{ car.year }} {{ car.make }} {{ car.model }} - LuxDrive
+Rentals{% endblock %} {% block extra_css %}
+<style>
+  .booking-container {
+    max-width: 800px;
+    margin: 0 auto;
+  }
+  .car-summary {
+    padding: 20px;
+    background-color: #f8f9fa;
+    border-radius: 10px;
+    margin-bottom: 20px;
+  }
+  .booking-form {
+    padding: 30px;
+    border-radius: 10px;
+    background-color: white;
+    box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+  }
+  .car-image {
+    border-radius: 10px;
+    width: 100%;
+    height: 200px;
+    object-fit: cover;
+  }
+</style>
+{% endblock %} {% block content %}
+<div class="container my-5">
+  <div class="booking-container">
+    <h1 class="text-center mb-4">Book Your Car</h1>
+
+    <!-- Car Summary -->
+    <div class="car-summary">
+      <div class="row align-items-center">
+        <div class="col-md-4">
+          {% if car.image %}
+          <img src="{{ car.image.url }}" class="car-image" alt="{{ car }}" />
+          {% else %}
+          <img
+            src="{% static 'images/car-placeholder.jpg' %}"
+            class="car-image"
+            alt="{{ car }}"
+          />
+          {% endif %}
+        </div>
+        <div class="col-md-8">
+          <h3>{{ car.year }} {{ car.make }} {{ car.model }}</h3>
+          <p class="text-capitalize">
+            <span class="badge bg-info">{{ car.category }}</span>
+          </p>
+          <p><strong>Price Per Day:</strong> ${{ car.price_per_day }}</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Booking Form -->
+    <div class="booking-form">
+      <form method="post" action="{% url 'rental:book_car' car_id=car.id %}">
+        {% csrf_token %}
+        <div class="mb-4">
+          <label for="booking_date" class="form-label">Pickup Date</label>
+          <input
+            type="date"
+            class="form-control"
+            id="booking_date"
+            name="booking_date"
+            min="{{ min_date|date:'Y-m-d' }}"
+            required
+          />
+          <small class="text-muted">Please select your pickup date</small>
+        </div>
+        <div class="mb-4">
+          <label for="return_date" class="form-label">Return Date</label>
+          <input
+            type="date"
+            class="form-control"
+            id="return_date"
+            name="return_date"
+            min="{{ min_return_date|date:'Y-m-d' }}"
+            required
+          />
+          <small class="text-muted">Please select your return date</small>
+        </div>
+
+        <div class="mb-4 p-3 bg-light rounded">
+          <h5>Price Calculation</h5>
+          <div class="d-flex justify-content-between">
+            <span>Daily Rate:</span>
+            <span>${{ car.price_per_day }}</span>
+          </div>
+          <div class="d-flex justify-content-between">
+            <span>Number of Days:</span>
+            <span id="num_days">0</span>
+          </div>
+          <hr />
+          <div class="d-flex justify-content-between">
+            <strong>Estimated Total:</strong>
+            <strong id="total_price">$0.00</strong>
+          </div>
+          <small class="text-muted"
+            >The final price will be confirmed upon booking</small
+          >
+        </div>
+
+        <div class="d-grid gap-2">
+          <button type="submit" class="btn btn-primary btn-lg">
+            Confirm Booking
+          </button>
+          <a
+            href="{% url 'rental:car_detail' car_id=car.id %}"
+            class="btn btn-outline-secondary"
+            >Cancel</a
+          >
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %} {% block extra_js %}
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    const bookingDateInput = document.getElementById("booking_date");
+    const returnDateInput = document.getElementById("return_date");
+    const numDaysElement = document.getElementById("num_days");
+    const totalPriceElement = document.getElementById("total_price");
+    const pricePerDay = parseFloat("{{ car.price_per_day }}");
+
+    function calculatePrice() {
+      if (bookingDateInput.value && returnDateInput.value) {
+        const bookingDate = new Date(bookingDateInput.value);
+        const returnDate = new Date(returnDateInput.value);
+
+        // Calculate days difference
+        const timeDiff = returnDate - bookingDate;
+        const days = Math.ceil(timeDiff / (1000 * 3600 * 24));
+
+        if (days > 0) {
+          numDaysElement.textContent = days;
+          const total = (days * pricePerDay).toFixed(2);
+          totalPriceElement.textContent = `$${total}`;
+        }
+      }
+    }
+
+    function updateReturnMinDate() {
+      if (bookingDateInput.value) {
+        const bookingDate = new Date(bookingDateInput.value);
+        bookingDate.setDate(bookingDate.getDate() + 1);
+        const minReturnDate = bookingDate.toISOString().split("T")[0];
+        returnDateInput.min = minReturnDate;
+
+        // If current return date is before new minimum, update it
+        if (
+          returnDateInput.value &&
+          new Date(returnDateInput.value) < bookingDate
+        ) {
+          returnDateInput.value = minReturnDate;
+        }
+
+        calculatePrice();
+      }
+    }
+
+    if (bookingDateInput && returnDateInput) {
+      bookingDateInput.addEventListener("change", updateReturnMinDate);
+      returnDateInput.addEventListener("change", calculatePrice);
+
+      // Initialize on page load if dates are pre-filled
+      updateReturnMinDate();
+    }
+  });
+</script>
+{% endblock %}
