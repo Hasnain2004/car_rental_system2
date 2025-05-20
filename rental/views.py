@@ -5,11 +5,12 @@ from django.contrib.auth.decorators import login_required
 from django.db.models import Q
 from datetime import datetime, timedelta
 from decimal import Decimal
-from .models import Car, Booking, Admin
+from .models import Car, Booking, Admin, UserProfile
 from django.contrib import messages
 from django.core.mail import send_mail
 from django.conf import settings
 from django.contrib.auth.decorators import user_passes_test
+from .forms import CustomUserCreationForm
 
 def is_guest(user):
     return not user.is_authenticated
@@ -111,13 +112,35 @@ def my_bookings(request):
 
 def register(request):
     if request.method == 'POST':
-        form = UserCreationForm(request.POST)
+        form = CustomUserCreationForm(request.POST)
         if form.is_valid():
             user = form.save()
+            
+            # Create user profile with phone number only
+            UserProfile.objects.create(
+                user=user,
+                phone_number=form.cleaned_data.get('phone_number')
+            )
+            
+            # Send welcome email
+            try:
+                send_mail(
+                    'Welcome to LuxDrive Rentals!',
+                    f'Dear {user.first_name},\n\nWelcome to LuxDrive Rentals! We are excited to have you as a member.\n\n'
+                    'You can now browse our car collection and make bookings.\n\n'
+                    'Best regards,\nLuxDrive Rentals Team',
+                    settings.DEFAULT_FROM_EMAIL,
+                    [user.email],
+                    fail_silently=True,
+                )
+            except:
+                pass  # Email sending is optional
+            
             login(request, user)
+            messages.success(request, "Registration successful! Welcome to LuxDrive Rentals.")
             return redirect('rental:home')
     else:
-        form = UserCreationForm()
+        form = CustomUserCreationForm()
     return render(request, 'rental/register.html', {'form': form})
 
 def login_view(request):
