@@ -46,11 +46,27 @@
                 >Home</a
               >
             </li>
+            {% if user.is_authenticated %}
             <li class="nav-item">
               <a
                 class="nav-link {% if 'cars' in request.path %}active{% endif %}"
                 href="{% url 'rental:car_list' %}"
                 >Cars</a
+              >
+            </li>
+            {% endif %}
+            <li class="nav-item">
+              <a
+                class="nav-link {% if 'about' in request.path %}active{% endif %}"
+                href="{% url 'rental:about' %}"
+                >About</a
+              >
+            </li>
+            <li class="nav-item">
+              <a
+                class="nav-link {% if 'contact' in request.path %}active{% endif %}"
+                href="{% url 'rental:contact' %}"
+                >Contact</a
               >
             </li>
             {% if user.is_authenticated %}
@@ -61,6 +77,11 @@
                 >My Bookings</a
               >
             </li>
+            {% if user.is_staff %}
+            <li class="nav-item">
+              <a class="nav-link" href="{% url 'admin:index' %}">Admin Panel</a>
+            </li>
+            {% endif %}
             <li class="nav-item">
               <a class="nav-link" href="{% url 'rental:logout' %}">Logout</a>
             </li>

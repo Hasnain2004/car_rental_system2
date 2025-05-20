@@ -1,0 +1,186 @@
+{% extends 'rental/base.html' %} {% load static %} {% block title %}Contact Us -
+LuxDrive Rentals{% endblock %} {% block extra_css %}
+<style>
+  .contact-container {
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+  .contact-header {
+    background: linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.6)),
+      url('{% static "images/contact-bg.jpg" %}');
+    background-size: cover;
+    background-position: center;
+    color: white;
+    padding: 60px 0;
+    margin-bottom: 40px;
+    text-align: center;
+  }
+  .contact-info-card {
+    background-color: #f8f9fa;
+    border-radius: 10px;
+    padding: 30px;
+    height: 100%;
+    transition: transform 0.3s;
+  }
+  .contact-info-card:hover {
+    transform: translateY(-5px);
+  }
+  .contact-icon {
+    font-size: 2.5rem;
+    color: #007bff;
+    margin-bottom: 20px;
+  }
+  .contact-form {
+    background-color: white;
+    border-radius: 10px;
+    padding: 30px;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+  }
+  .map-container {
+    border-radius: 10px;
+    overflow: hidden;
+    height: 400px;
+    margin-top: 40px;
+  }
+</style>
+{% endblock %} {% block content %}
+<!-- Contact Header -->
+<section class="contact-header">
+  <div class="container">
+    <h1 class="display-4">Contact Us</h1>
+    <p class="lead">
+      We're here to help and answer any questions you might have
+    </p>
+  </div>
+</section>
+
+<div class="container contact-container">
+  <div class="row mb-5">
+    <!-- Contact Information -->
+    <div class="col-md-4 mb-4">
+      <div class="contact-info-card text-center">
+        <i class="fas fa-map-marker-alt contact-icon"></i>
+        <h4>Our Location</h4>
+        <p>123 Car Street<br />Automotive City, AC 12345<br />United States</p>
+      </div>
+    </div>
+    <div class="col-md-4 mb-4">
+      <div class="contact-info-card text-center">
+        <i class="fas fa-phone contact-icon"></i>
+        <h4>Phone Number</h4>
+        <p>Main: +1 (555) 123-4567<br />Support: +1 (555) 987-6543</p>
+      </div>
+    </div>
+    <div class="col-md-4 mb-4">
+      <div class="contact-info-card text-center">
+        <i class="fas fa-envelope contact-icon"></i>
+        <h4>Email Address</h4>
+        <p>info@luxdrive.com<br />support@luxdrive.com</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="row">
+    <!-- Contact Form -->
+    <div class="col-lg-8 mb-4">
+      <div class="contact-form">
+        <h3 class="mb-4">Send Us a Message</h3>
+        <form method="post" action="{% url 'rental:contact' %}">
+          {% csrf_token %}
+          <div class="row">
+            <div class="col-md-6 mb-3">
+              <label for="name" class="form-label">Your Name</label>
+              <input
+                type="text"
+                class="form-control"
+                id="name"
+                name="name"
+                required
+              />
+            </div>
+            <div class="col-md-6 mb-3">
+              <label for="email" class="form-label">Email Address</label>
+              <input
+                type="email"
+                class="form-control"
+                id="email"
+                name="email"
+                required
+              />
+            </div>
+          </div>
+          <div class="mb-3">
+            <label for="subject" class="form-label">Subject</label>
+            <input
+              type="text"
+              class="form-control"
+              id="subject"
+              name="subject"
+              required
+            />
+          </div>
+          <div class="mb-3">
+            <label for="message" class="form-label">Message</label>
+            <textarea
+              class="form-control"
+              id="message"
+              name="message"
+              rows="5"
+              required
+            ></textarea>
+          </div>
+          <button type="submit" class="btn btn-primary">Send Message</button>
+        </form>
+      </div>
+    </div>
+
+    <!-- Business Hours -->
+    <div class="col-lg-4 mb-4">
+      <div class="contact-form">
+        <h3 class="mb-4">Business Hours</h3>
+        <ul class="list-unstyled">
+          <li class="mb-3 d-flex justify-content-between">
+            <span>Monday - Friday:</span>
+            <span>9:00 AM - 6:00 PM</span>
+          </li>
+          <li class="mb-3 d-flex justify-content-between">
+            <span>Saturday:</span>
+            <span>10:00 AM - 4:00 PM</span>
+          </li>
+          <li class="mb-3 d-flex justify-content-between">
+            <span>Sunday:</span>
+            <span>Closed</span>
+          </li>
+        </ul>
+        <hr />
+        <h4 class="mb-3">Follow Us</h4>
+        <div class="d-flex gap-3">
+          <a href="#" class="text-primary"
+            ><i class="fab fa-facebook fa-2x"></i
+          ></a>
+          <a href="#" class="text-info"><i class="fab fa-twitter fa-2x"></i></a>
+          <a href="#" class="text-danger"
+            ><i class="fab fa-instagram fa-2x"></i
+          ></a>
+          <a href="#" class="text-primary"
+            ><i class="fab fa-linkedin fa-2x"></i
+          ></a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Map -->
+  <div class="map-container">
+    <iframe
+      src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d387193.30591910525!2d-74.25986432970718!3d40.697149422113014!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x89c24fa5d33f083b%3A0xc80b8f06e177fe62!2sNew%20York%2C%20NY%2C%20USA!5e0!3m2!1sen!2s!4v1647043087964!5m2!1sen!2s"
+      width="100%"
+      height="100%"
+      style="border: 0"
+      allowfullscreen=""
+      loading="lazy"
+    >
+    </iframe>
+  </div>
+</div>
+{% endblock %}

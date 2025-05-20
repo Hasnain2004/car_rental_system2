@@ -54,6 +54,7 @@ Rentals - Premium Car Rental{% endblock %} {% block extra_css %}
 <!-- Categories Section -->
 <section class="container my-5">
   <h2 class="text-center mb-5">Browse by Category</h2>
+  {% if user.is_authenticated %}
   <div class="row">
     {% for category in categories %}
     <div class="col-md-4">
@@ -75,11 +76,27 @@ Rentals - Premium Car Rental{% endblock %} {% block extra_css %}
     </div>
     {% endfor %}
   </div>
+  {% else %}
+  <div class="text-center py-5">
+    <i class="fas fa-lock fa-4x mb-3 text-muted"></i>
+    <h3>Login Required</h3>
+    <p class="lead">
+      Please login or create an account to browse our car categories.
+    </p>
+    <div class="mt-4">
+      <a href="{% url 'rental:login' %}" class="btn btn-primary me-2">Login</a>
+      <a href="{% url 'rental:register' %}" class="btn btn-outline-primary"
+        >Register</a
+      >
+    </div>
+  </div>
+  {% endif %}
 </section>
 
 <!-- Featured Cars Section -->
 <section class="container my-5">
   <h2 class="text-center mb-5">Featured Vehicles</h2>
+  {% if user.is_authenticated %}
   <div class="row">
     {% for car in featured_cars %}
     <div class="col-md-4 mb-4">
@@ -124,6 +141,21 @@ Rentals - Premium Car Rental{% endblock %} {% block extra_css %}
       >View All Cars</a
     >
   </div>
+  {% else %}
+  <div class="text-center py-5">
+    <i class="fas fa-lock fa-4x mb-3 text-muted"></i>
+    <h3>Login Required</h3>
+    <p class="lead">
+      Please login or create an account to view our car collection.
+    </p>
+    <div class="mt-4">
+      <a href="{% url 'rental:login' %}" class="btn btn-primary me-2">Login</a>
+      <a href="{% url 'rental:register' %}" class="btn btn-outline-primary"
+        >Register</a
+      >
+    </div>
+  </div>
+  {% endif %}
 </section>
 
 <!-- Features Section -->
@@ -166,6 +198,7 @@ Rentals - Premium Car Rental{% endblock %} {% block extra_css %}
 </section>
 
 <!-- Call to Action Section -->
+{% if show_signup %}
 <section class="container my-5 text-center">
   <div class="p-5 bg-light rounded">
     <h2>Ready to Book Your Dream Car?</h2>
@@ -177,7 +210,7 @@ Rentals - Premium Car Rental{% endblock %} {% block extra_css %}
     >
   </div>
 </section>
-{% endblock %} {% block extra_js %}
+{% endif %} {% endblock %} {% block extra_js %}
 <script>
   // You can add any JavaScript specific to the home page here
 </script>

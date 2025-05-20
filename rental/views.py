@@ -7,16 +7,14 @@ from datetime import datetime, timedelta
 from decimal import Decimal
 from .models import Car, Booking, Admin
 from django.contrib import messages
+from django.core.mail import send_mail
+from django.conf import settings
+from django.contrib.auth.decorators import user_passes_test
 
-def home(request):
-    featured_cars = Car.objects.filter(available=True).order_by('-added_date')[:3]
-    categories = Car.objects.values_list('category', flat=True).distinct()
-    context = {
-        'featured_cars': featured_cars,
-        'categories': categories
-    }
-    return render(request, 'rental/home.html', context)
+def is_guest(user):
+    return not user.is_authenticated
 
+@login_required(login_url='rental:login')
 def car_list(request):
     cars = Car.objects.filter(available=True)
     categories = Car.objects.values_list('category', flat=True).distinct()
@@ -26,6 +24,7 @@ def car_list(request):
     }
     return render(request, 'rental/car_list.html', context)
 
+@login_required(login_url='rental:login')
 def car_filter(request, category):
     cars = Car.objects.filter(available=True, category=category)
     categories = Car.objects.values_list('category', flat=True).distinct()
@@ -36,12 +35,23 @@ def car_filter(request, category):
     }
     return render(request, 'rental/car_list.html', context)
 
+@login_required(login_url='rental:login')
 def car_detail(request, car_id):
     car = get_object_or_404(Car, id=car_id)
     context = {
         'car': car
     }
     return render(request, 'rental/car_detail.html', context)
+
+def home(request):
+    featured_cars = Car.objects.filter(available=True).order_by('-added_date')[:3]
+    categories = Car.objects.values_list('category', flat=True).distinct()
+    context = {
+        'featured_cars': featured_cars,
+        'categories': categories,
+        'show_signup': not request.user.is_authenticated
+    }
+    return render(request, 'rental/home.html', context)
 
 @login_required
 def book_car(request, car_id):
@@ -125,3 +135,20 @@ def login_view(request):
 def logout_view(request):
     logout(request)
     return redirect('rental:home')
+
+def contact(request):
+    if request.method == 'POST':
+        name = request.POST.get('name')
+        email = request.POST.get('email')
+        subject = request.POST.get('subject')
+        message = request.POST.get('message')
+        
+        # Here you would typically send an email
+        # For now, we'll just show a success message
+        messages.success(request, "Thank you for your message. We'll get back to you soon!")
+        return redirect('rental:contact')
+    
+    return render(request, 'rental/contact.html')
+
+def about(request):
+    return render(request, 'rental/about.html')
