@@ -10,6 +10,7 @@ urlpatterns = [
     path('cars/filter/<str:category>/', views.car_filter, name='car_filter'),
     path('book/<int:car_id>/', views.book_car, name='book_car'),
     path('my-bookings/', views.my_bookings, name='my_bookings'),
+    path('booking/<int:booking_id>/update/', views.update_booking_status, name='update_booking_status'),
     path('register/', views.register, name='register'),
     path('login/', views.login_view, name='login'),
     path('logout/', views.logout_view, name='logout'),

@@ -5,7 +5,7 @@ from django.contrib.auth.decorators import login_required
 from django.db.models import Q
 from datetime import datetime, timedelta
 from decimal import Decimal
-from .models import Car, Booking, Admin, UserProfile
+from .models import Car, Booking, Admin, UserProfile, ContactMessage
 from django.contrib import messages
 from django.core.mail import send_mail
 from django.conf import settings
@@ -104,11 +104,68 @@ def book_car(request, car_id):
 
 @login_required
 def my_bookings(request):
-    bookings = Booking.objects.filter(user=request.user).order_by('-created_at')
-    context = {
-        'bookings': bookings
-    }
-    return render(request, 'rental/my_bookings.html', context)
+    if request.user.is_staff:
+        # For admin users, show all pending booking requests
+        bookings = Booking.objects.filter(status='pending').order_by('-created_at')
+        template = 'rental/booking_requests.html'
+        context = {
+            'bookings': bookings,
+            'is_admin': True
+        }
+    else:
+        # For regular users, show their own bookings
+        bookings = Booking.objects.filter(user=request.user).order_by('-created_at')
+        template = 'rental/my_bookings.html'
+        context = {
+            'bookings': bookings,
+            'is_admin': False
+        }
+    return render(request, template, context)
+
+@login_required
+def update_booking_status(request, booking_id):
+    if not request.user.is_staff:
+        messages.error(request, "You don't have permission to perform this action.")
+        return redirect('rental:my_bookings')
+    
+    try:
+        booking = Booking.objects.get(id=booking_id)
+        new_status = request.POST.get('status')
+        
+        if new_status in ['confirmed', 'cancelled']:
+            booking.status = new_status
+            booking.save()
+            
+            # Send email notification to the user
+            subject = f"Booking {new_status.title()} - LuxDrive Rentals"
+            message = f"""
+            Dear {booking.user.get_full_name()},
+            
+            Your booking request for {booking.car} has been {new_status}.
+            
+            Booking Details:
+            - Booking Date: {booking.booking_date}
+            - Return Date: {booking.return_date}
+            - Total Price: ${booking.total_price}
+            
+            {f"Thank you for choosing LuxDrive Rentals. We look forward to serving you!" if new_status == 'confirmed' else "We apologize for any inconvenience. Please feel free to contact us if you have any questions."}
+            
+            Best regards,
+            LuxDrive Rentals Team
+            """
+            
+            booking.user.email_user(subject, message)
+            
+            messages.success(request, f"Booking has been {new_status} successfully.")
+        else:
+            messages.error(request, "Invalid status provided.")
+            
+    except Booking.DoesNotExist:
+        messages.error(request, "Booking not found.")
+    except Exception as e:
+        messages.error(request, f"An error occurred: {str(e)}")
+    
+    return redirect('rental:my_bookings')
 
 def register(request):
     if request.method == 'POST':
@@ -166,8 +223,27 @@ def contact(request):
         subject = request.POST.get('subject')
         message = request.POST.get('message')
         
-        # Here you would typically send an email
-        # For now, we'll just show a success message
+        # Save the message to database
+        ContactMessage.objects.create(
+            name=name,
+            email=email,
+            subject=subject,
+            message=message
+        )
+        
+        # Send email notification to admin (optional)
+        try:
+            admin_email = settings.ADMIN_EMAIL if hasattr(settings, 'ADMIN_EMAIL') else settings.DEFAULT_FROM_EMAIL
+            send_mail(
+                f'New Contact Message: {subject}',
+                f'Name: {name}\nEmail: {email}\n\nMessage:\n{message}',
+                settings.DEFAULT_FROM_EMAIL,
+                [admin_email],
+                fail_silently=True,
+            )
+        except:
+            pass  # Email sending is optional
+        
         messages.success(request, "Thank you for your message. We'll get back to you soon!")
         return redirect('rental:contact')
     

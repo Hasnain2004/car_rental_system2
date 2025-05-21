@@ -1,0 +1,199 @@
+{% extends 'rental/base.html' %} {% load static %} {% block title %}Booking
+Requests - LuxDrive Rentals{% endblock %} {% block extra_css %}
+<style>
+  .booking-requests-container {
+    padding: 2rem 0;
+  }
+  .booking-card {
+    border: none;
+    border-radius: 10px;
+    box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+    margin-bottom: 1.5rem;
+    transition: transform 0.2s;
+  }
+  .booking-card:hover {
+    transform: translateY(-5px);
+  }
+  .booking-header {
+    background: linear-gradient(to right, #007bff, #0056b3);
+    color: white;
+    padding: 1rem;
+    border-radius: 10px 10px 0 0;
+  }
+  .booking-body {
+    padding: 1.5rem;
+  }
+  .user-info {
+    background-color: #f8f9fa;
+    padding: 1rem;
+    border-radius: 8px;
+    margin-bottom: 1rem;
+  }
+  .car-info {
+    display: flex;
+    align-items: center;
+    margin-bottom: 1rem;
+  }
+  .car-image {
+    width: 100px;
+    height: 70px;
+    object-fit: cover;
+    border-radius: 8px;
+    margin-right: 1rem;
+  }
+  .status-badge {
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+    font-weight: 500;
+  }
+  .status-pending {
+    background-color: #ffc107;
+    color: #000;
+  }
+  .status-confirmed {
+    background-color: #28a745;
+    color: white;
+  }
+  .status-cancelled {
+    background-color: #dc3545;
+    color: white;
+  }
+  .action-buttons {
+    display: flex;
+    gap: 1rem;
+    margin-top: 1rem;
+  }
+  .btn-action {
+    flex: 1;
+    padding: 0.75rem;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  .no-bookings {
+    text-align: center;
+    padding: 3rem;
+    background: #f8f9fa;
+    border-radius: 10px;
+  }
+  .no-bookings i {
+    font-size: 3rem;
+    color: #6c757d;
+    margin-bottom: 1rem;
+  }
+</style>
+{% endblock %} {% block content %}
+<div class="booking-requests-container">
+  <div class="container">
+    <h1 class="mb-4">Booking Requests</h1>
+
+    {% if messages %} {% for message in messages %}
+    <div
+      class="alert alert-{{ message.tags }} alert-dismissible fade show"
+      role="alert"
+    >
+      {{ message }}
+      <button
+        type="button"
+        class="btn-close"
+        data-bs-dismiss="alert"
+        aria-label="Close"
+      ></button>
+    </div>
+    {% endfor %} {% endif %} {% if bookings %} {% for booking in bookings %}
+    <div class="booking-card">
+      <div
+        class="booking-header d-flex justify-content-between align-items-center"
+      >
+        <h5 class="mb-0">Booking Request #{{ booking.id }}</h5>
+        <span class="status-badge status-{{ booking.status }}"
+          >{{ booking.status|title }}</span
+        >
+      </div>
+      <div class="booking-body">
+        <div class="user-info">
+          <h6 class="mb-2">Customer Information</h6>
+          <p class="mb-1">
+            <strong>Name:</strong> {{ booking.user.get_full_name }}
+          </p>
+          <p class="mb-1"><strong>Email:</strong> {{ booking.user.email }}</p>
+          <p class="mb-0">
+            <strong>Phone:</strong> {{ booking.user.profile.phone_number }}
+          </p>
+        </div>
+
+        <div class="car-info">
+          {% if booking.car.image %}
+          <img
+            src="{{ booking.car.image.url }}"
+            alt="{{ booking.car }}"
+            class="car-image"
+          />
+          {% else %}
+          <img
+            src="https://via.placeholder.com/100x70?text=No+Image"
+            alt="No Image"
+            class="car-image"
+          />
+          {% endif %}
+          <div>
+            <h5 class="mb-1">{{ booking.car }}</h5>
+            <p class="mb-0 text-muted">
+              Category: {{ booking.car.get_category_display }}
+            </p>
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="col-md-6">
+            <p><strong>Booking Date:</strong> {{ booking.booking_date }}</p>
+            <p><strong>Return Date:</strong> {{ booking.return_date }}</p>
+          </div>
+          <div class="col-md-6">
+            <p><strong>Total Price:</strong> ${{ booking.total_price }}</p>
+            <p>
+              <strong>Requested On:</strong> {{ booking.created_at|date:"F j, Y,
+              g:i a" }}
+            </p>
+          </div>
+        </div>
+
+        {% if booking.status == 'pending' %}
+        <form
+          method="post"
+          action="{% url 'rental:update_booking_status' booking.id %}"
+          class="action-buttons"
+        >
+          {% csrf_token %}
+          <button
+            type="submit"
+            name="status"
+            value="confirmed"
+            class="btn btn-success btn-action"
+          >
+            <i class="fas fa-check me-2"></i>Confirm
+          </button>
+          <button
+            type="submit"
+            name="status"
+            value="cancelled"
+            class="btn btn-danger btn-action"
+          >
+            <i class="fas fa-times me-2"></i>Cancel
+          </button>
+        </form>
+        {% endif %}
+      </div>
+    </div>
+    {% endfor %} {% else %}
+    <div class="no-bookings">
+      <i class="fas fa-clipboard-list"></i>
+      <h3>No Pending Booking Requests</h3>
+      <p class="text-muted">
+        There are no booking requests waiting for approval at the moment.
+      </p>
+    </div>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}
