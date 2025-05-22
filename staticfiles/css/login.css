@@ -1,0 +1,27 @@
+.login-container {
+  max-width: 500px;
+  margin: 40px auto;
+}
+
+.login-card {
+  border: none;
+  border-radius: 10px;
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+}
+
+.login-header {
+  background: linear-gradient(to right, #007bff, #0056b3);
+  color: white;
+  padding: 30px;
+  text-align: center;
+}
+
+.login-body {
+  padding: 30px;
+}
+
+.login-icon {
+  font-size: 3rem;
+  margin-bottom: 15px;
+}

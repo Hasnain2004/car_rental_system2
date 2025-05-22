@@ -1,0 +1,31 @@
+.car-image {
+  border-radius: 10px;
+  max-height: 400px;
+  object-fit: cover;
+  width: 100%;
+}
+
+.car-detail-card {
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.car-features {
+  margin-top: 30px;
+}
+
+.feature-item {
+  padding: 10px 0;
+  border-bottom: 1px solid #eee;
+}
+
+.feature-icon {
+  margin-right: 10px;
+  color: #007bff;
+}
+
+.booking-form {
+  padding: 20px;
+  background-color: #f8f9fa;
+  border-radius: 10px;
+}
