@@ -24,10 +24,25 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-wqnt6gi70g&a6#9#dhpy=a-3ns6l5anoq95w8wm@!k_xkl1myr'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = [
+    'asadabbas3141.pythonanywhere.com',
+    'www.asadabbas3141.pythonanywhere.com',
+    'localhost',
+    '127.0.0.1',
+]
 
+# Security settings for production
+SECURE_SSL_REDIRECT = True
+SESSION_COOKIE_SECURE = True
+CSRF_COOKIE_SECURE = True
+SECURE_BROWSER_XSS_FILTER = True
+SECURE_CONTENT_TYPE_NOSNIFF = True
+X_FRAME_OPTIONS = 'DENY'
+SECURE_HSTS_SECONDS = 31536000  # 1 year
+SECURE_HSTS_INCLUDE_SUBDOMAINS = True
+SECURE_HSTS_PRELOAD = True
 
 # Application definition
 
@@ -121,6 +136,9 @@ STATIC_URL = 'static/'
 STATICFILES_DIRS = [
     BASE_DIR / 'rental' / 'static',
 ]
+
+
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 
 # Media files (User uploaded files)
 MEDIA_URL = '/media/'
